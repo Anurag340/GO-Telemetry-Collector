@@ -19,11 +19,6 @@ A high-performance **Telemetry Collector** built with **Go** and powered by **go
 ## 🌟 Highlights
 
 - ⚙️ **Concurrent Data Processing** using lightweight Go goroutines.
-- 🔌 **Pluggable Input Sources** – HTTP, gRPC, and more.
-- 📤 **Customizable Export Pipelines** to databases, queues, or observability platforms.
-- 🧠 **Built-in Buffering and Backpressure Control** to avoid overload.
-- 📈 **Metrics Exposure** via Prometheus endpoint.
-- 🧪 **Unit and Load Tested** with benchmarks to prove performance.
 - 📦 **Modular and Extensible** architecture ready for production.
 
 ---
