@@ -16,6 +16,11 @@ func main(){
 
 	app.Post("/ingest",Controllers.IngestData)
 
+	app.Get("/healthz", func(c *fiber.Ctx) error {
+		return c.SendString("ok")
+	})
+
+
 	err:=app.Listen(":8001")
 	if err!=nil{
 		panic(err)

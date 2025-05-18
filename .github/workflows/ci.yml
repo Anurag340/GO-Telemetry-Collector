@@ -25,7 +25,13 @@ jobs:
     - name: Start Go Telemetry Server
       run: |
         go run main.go &
-        sleep 5
+        echo "Waiting for server to be ready..."
+        for i in {1..10}; do
+          curl -s http://localhost:8001/healthz && echo "Server is up!" && break
+          echo "Waiting 2s..."
+          sleep 2
+        done
+
 
     - name: Run Newman Tests
       run: |
