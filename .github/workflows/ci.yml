@@ -1,4 +1,4 @@
-name: Run Go Telemetry API Tests
+name: Go Telemetry CI
 
 on:
   push:
@@ -7,35 +7,49 @@ on:
     branches: [ main ]
 
 jobs:
-  api-test:
+  test:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:5.7
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: logdb
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: '1.21'
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
 
-    - name: Install Newman
-      run: npm install -g newman
+      - name: Install Go dependencies
+        run: go mod tidy
 
-    - name: Start Go Telemetry Server
-      run: |
-        go run main.go &
-        echo "Waiting for server to be ready..."
-        for i in {1..10}; do
-          curl -s http://localhost:8001/healthz && echo "Server is up!" && break
-          echo "Waiting 2s..."
-          sleep 2
-        done
+      - name: Install Newman
+        run: npm install -g newman
 
+      - name: Start Go Telemetry Server
+        run: |
+          go run main.go &
+          echo "Waiting for server to be ready..."
+          for i in {1..10}; do
+            curl -s http://localhost:8001/healthz && echo "Server is up!" && break
+            echo "Waiting 2s..."
+            sleep 2
+          done
 
-    - name: Run Newman Tests
-      run: |
-        newman run postman/go-telemetry.postman_collection.json \
-          --environment postman/go-telemetry.postman_environment.json \
-          --reporters cli,json \
-          --reporter-json-export newman-report.json
+      - name: Run Postman Newman Tests
+        run: |
+          newman run postman/go-telemetry.postman_collection.json \
+            --environment postman/go-telemetry.postman_environment.json
